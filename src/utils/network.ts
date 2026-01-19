@@ -30,6 +30,9 @@ export const httpHandler = async (
   body?: unknown,
 ): Promise<ApiResponse> => {
   try {
+    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+    const fullUrl = `${baseUrl}${url}`;
+
     const config: RequestInit = {
       method,
       headers: {
@@ -42,7 +45,7 @@ export const httpHandler = async (
       config.body = JSON.stringify(body);
     }
 
-    const response = await fetch(url, config);
+    const response = await fetch(fullUrl, config);
     const data = await response.json();
 
     if (data.success) {

@@ -20,9 +20,9 @@ export interface CartItem {
 
 export interface DiscountCode {
   code: string;
-  discount: number;
-  used: boolean;
-  orderId: string | null;
+  isUsed: boolean;
+  generatedAtOrderNumber: number;
+  discountPercent: number;
 }
 
 export interface Order {
@@ -50,6 +50,7 @@ export interface GeneratedDiscountCode {
 }
 
 export interface AdminStats {
+  totalOrders: number;
   totalItemsPurchased: number;
   totalPurchaseAmount: number;
   totalDiscountAmount: number;

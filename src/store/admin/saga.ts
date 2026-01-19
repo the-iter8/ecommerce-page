@@ -1,12 +1,26 @@
 import { takeLatest, put, call } from "redux-saga/effects";
 import { adminActions } from ".";
 import {
+  getAdminStats,
   getAdminConfig,
   generateDiscountCode as generateDiscountCodeAPI,
 } from "@/apis/admin";
-import type { AdminConfig, GeneratedDiscountCode } from "@/types";
+import type { AdminConfig, AdminStats, GeneratedDiscountCode } from "@/types";
 
-export function* OnFetchStats() {}
+export function* OnFetchStats(): Generator {
+  try {
+    yield put(adminActions.setIsLoading(true));
+    const stats = (yield call(getAdminStats)) as AdminStats;
+    yield put(adminActions.setStats(stats));
+    yield put(adminActions.setIsLoading(false));
+  } catch (error: unknown) {
+    yield put(adminActions.setIsLoading(false));
+    console.error(
+      "Failed to fetch admin stats:",
+      error instanceof Error ? error.message : "Unknown error",
+    );
+  }
+}
 
 export function* OnFetchConfig(): Generator {
   try {

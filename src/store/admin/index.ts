@@ -31,6 +31,9 @@ export const adminSlice = createSlice({
     setGeneratedCode: (state, action: PayloadAction<GeneratedDiscountCode>) => {
       state.generatedCode = action.payload;
     },
+    clearGeneratedCode: (state) => {
+      state.generatedCode = null;
+    },
     setIsLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },

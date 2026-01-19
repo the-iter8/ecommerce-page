@@ -1,6 +1,5 @@
 import type { Order } from "@/types";
 import { httpHandler, RequestType, responseStatus } from "@/utils/network";
-import { API_BASE_URL } from "@/config/api";
 
 export interface CheckoutPayload {
   discountCode?: string;
@@ -17,7 +16,7 @@ export const checkout = async (
   payload: CheckoutPayload,
 ): Promise<CheckoutResponse> => {
   const response = await httpHandler(
-    `${API_BASE_URL}/orders/${CUSTOMER_ID}/checkout`,
+    `/orders/${CUSTOMER_ID}/checkout`,
     RequestType.POST,
     undefined,
     payload,

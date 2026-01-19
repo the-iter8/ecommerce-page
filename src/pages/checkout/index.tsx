@@ -34,6 +34,9 @@ const CheckoutPage: React.FC = () => {
       const response = await checkout({ discountCode: code || undefined });
 
       dispatch(cartActions.clearCart());
+      dispatch(adminActions.clearGeneratedCode());
+      dispatch(adminActions.fetchConfig());
+
       navigate("/payment/success", {
         state: { order: response.order },
       });
