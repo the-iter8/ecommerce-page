@@ -1,4 +1,6 @@
 import type { CartItem, Product } from "@/types";
+import { API_BASE_URL } from "@/config/api";
+import { getProductById as fetchProductById } from "./products";
 
 export interface AddToCartPayload {
   productId: string;
@@ -17,69 +19,119 @@ export interface CartResponse {
   total: number;
 }
 
-// In-memory cart storage (simulates backend)
-let cartStorage: CartItem[] = [];
-let cartIdCounter = 1;
+// Default customer ID (in real app, this would come from auth)
+const CUSTOMER_ID = "customer123";
 
-// Simulate getting product data (in real app, would be from products API)
-const getProductById = (productId: string): Product | null => {
-  // This would normally come from products store or API
-  // For now, returning mock data
-  return {
-    id: productId,
-    name: "Product",
-    description: "Description",
-    price: 1000,
-    image: "https://picsum.photos/seed/prod/300/300",
-    category: "Electronics",
-    stock: 10,
+interface BackendCartItem {
+  productId: string;
+  quantity: number;
+  priceSnapshot: number;
+}
+
+interface BackendCartResponse {
+  success: boolean;
+  data: {
+    cart: {
+      id: string;
+      customerId: string;
+      items: BackendCartItem[];
+      totalAmount: number;
+      createdAt: number;
+      updatedAt?: number;
+    };
   };
-};
+}
 
-const calculateTotals = (items: CartItem[]) => {
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0,
-  );
-  const discount = 0; // Will be calculated based on discount code
-  const total = subtotal - discount;
-  return { subtotal, discount, total };
+// Helper to transform backend cart to frontend format
+const transformCartResponse = async (
+  backendItems: BackendCartItem[],
+): Promise<CartItem[]> => {
+  const cartItems: CartItem[] = [];
+
+  for (const item of backendItems) {
+    try {
+      const product: Product = await fetchProductById(item.productId);
+      cartItems.push({
+        id: item.productId, // Using productId as cart item id
+        productId: item.productId,
+        quantity: item.quantity,
+        product,
+      });
+    } catch (error) {
+      console.error(`Failed to fetch product ${item.productId}:`, error);
+    }
+  }
+
+  return cartItems;
 };
 
 export const getCart = async (): Promise<CartResponse> => {
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  const url = `${API_BASE_URL}/cart/${CUSTOMER_ID}`;
 
-  const { subtotal, discount, total } = calculateTotals(cartStorage);
+  try {
+    const response = await fetch(url);
 
-  return {
-    items: [...cartStorage],
-    subtotal,
-    discount,
-    total,
-  };
+    if (response.status === 404) {
+      // Cart doesn't exist yet
+      return {
+        items: [],
+        subtotal: 0,
+        discount: 0,
+        total: 0,
+      };
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch cart: ${response.statusText}`);
+    }
+
+    const result: BackendCartResponse = await response.json();
+
+    if (!result.success) {
+      throw new Error("Failed to fetch cart");
+    }
+
+    const items = await transformCartResponse(result.data.cart.items);
+    const subtotal = result.data.cart.totalAmount;
+    const discount = 0;
+    const total = subtotal - discount;
+
+    return {
+      items,
+      subtotal,
+      discount,
+      total,
+    };
+  } catch (error) {
+    console.error("Error fetching cart:", error);
+    throw error;
+  }
 };
 
 export const addToCart = async (
   payload: AddToCartPayload,
 ): Promise<boolean> => {
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  const url = `${API_BASE_URL}/cart/${CUSTOMER_ID}/items`;
 
-  const existingItem = cartStorage.find(
-    (item) => item.productId === payload.productId,
-  );
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      productId: payload.productId,
+      quantity: payload.quantity,
+    }),
+  });
 
-  if (existingItem) {
-    existingItem.quantity += payload.quantity;
-  } else {
-    const product = getProductById(payload.productId);
-    if (product) {
-      cartStorage.push({
-        id: `cart-${cartIdCounter++}`,
-        productId: payload.productId,
-        quantity: payload.quantity,
-        product,
-      });
-    }
+  if (!response.ok) {
+    throw new Error(`Failed to add to cart: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error("Failed to add to cart");
   }
 
   return true;
@@ -88,20 +140,70 @@ export const addToCart = async (
 export const updateCartItem = async (
   payload: UpdateCartPayload,
 ): Promise<boolean> => {
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  // Backend uses productId for removal/updates, itemId is the productId
+  const url = `${API_BASE_URL}/cart/${CUSTOMER_ID}/items`;
 
-  const item = cartStorage.find((i) => i.id === payload.itemId);
-  if (item) {
-    item.quantity = payload.quantity;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      productId: payload.itemId, // itemId is actually the productId
+      quantity: payload.quantity,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update cart: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error("Failed to update cart");
   }
 
   return true;
 };
 
 export const removeFromCart = async (itemId: string): Promise<boolean> => {
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  // itemId is the productId
+  const url = `${API_BASE_URL}/cart/${CUSTOMER_ID}/items/${itemId}`;
 
-  cartStorage = cartStorage.filter((item) => item.id !== itemId);
+  const response = await fetch(url, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to remove from cart: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error("Failed to remove from cart");
+  }
+
+  return true;
+};
+
+export const clearCart = async (): Promise<boolean> => {
+  const url = `${API_BASE_URL}/cart/${CUSTOMER_ID}`;
+
+  const response = await fetch(url, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to clear cart: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error("Failed to clear cart");
+  }
 
   return true;
 };
