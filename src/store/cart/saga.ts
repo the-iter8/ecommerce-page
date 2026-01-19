@@ -2,7 +2,7 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { cartActions } from ".";
 import { globalActions } from "@/store/global";
-import type { AddToCartPayload, UpdateCartPayload } from "@/apis/cart";
+import type { AddToCartPayload } from "@/apis/cart";
 import * as cartAPI from "@/apis/cart";
 
 export function* OnFetchCart() {
@@ -46,24 +46,6 @@ export function* OnAddToCart(action: PayloadAction<AddToCartPayload>) {
   }
 }
 
-export function* OnUpdateCart(action: PayloadAction<UpdateCartPayload>) {
-  try {
-    yield put(globalActions.startLoading());
-    yield put(cartActions.setIsLoading(true));
-
-    const success: boolean = yield call(cartAPI.updateCartItem, action.payload);
-
-    if (success) {
-      yield call(OnFetchCart);
-    }
-  } catch (error: unknown) {
-    console.error("Failed to update cart:", error);
-  } finally {
-    yield put(cartActions.setIsLoading(false));
-    yield put(globalActions.stopLoading());
-  }
-}
-
 export function* OnRemoveFromCart(action: PayloadAction<string>) {
   try {
     yield put(globalActions.startLoading());
@@ -82,11 +64,54 @@ export function* OnRemoveFromCart(action: PayloadAction<string>) {
   }
 }
 
+export function* OnIncrementItem(action: PayloadAction<string>) {
+  try {
+    yield put(globalActions.startLoading());
+    yield put(cartActions.setIsLoading(true));
+
+    const success: boolean = yield call(
+      cartAPI.incrementCartItem,
+      action.payload,
+    );
+
+    if (success) {
+      yield call(OnFetchCart);
+    }
+  } catch (error: unknown) {
+    console.error("Failed to increment item:", error);
+  } finally {
+    yield put(cartActions.setIsLoading(false));
+    yield put(globalActions.stopLoading());
+  }
+}
+
+export function* OnDecrementItem(action: PayloadAction<string>) {
+  try {
+    yield put(globalActions.startLoading());
+    yield put(cartActions.setIsLoading(true));
+
+    const success: boolean = yield call(
+      cartAPI.decrementCartItem,
+      action.payload,
+    );
+
+    if (success) {
+      yield call(OnFetchCart);
+    }
+  } catch (error: unknown) {
+    console.error("Failed to decrement item:", error);
+  } finally {
+    yield put(cartActions.setIsLoading(false));
+    yield put(globalActions.stopLoading());
+  }
+}
+
 function* cartSaga() {
   yield takeLatest(cartActions.fetchCart, OnFetchCart);
   yield takeLatest(cartActions.addToCart, OnAddToCart);
-  yield takeLatest(cartActions.updateCart, OnUpdateCart);
   yield takeLatest(cartActions.removeFromCart, OnRemoveFromCart);
+  yield takeLatest(cartActions.incrementItem, OnIncrementItem);
+  yield takeLatest(cartActions.decrementItem, OnDecrementItem);
 }
 
 export default cartSaga;

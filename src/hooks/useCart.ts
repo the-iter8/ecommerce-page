@@ -9,16 +9,16 @@ export const useCart = () => {
     dispatch(cartActions.addToCart({ productId, quantity }));
   };
 
-  const updateQuantity = (itemId: string, quantity: number) => {
-    if (quantity <= 0) {
-      dispatch(cartActions.removeFromCart(itemId));
-    } else {
-      dispatch(cartActions.updateCart({ itemId, quantity }));
-    }
-  };
-
   const removeItem = (itemId: string) => {
     dispatch(cartActions.removeFromCart(itemId));
+  };
+
+  const incrementItem = (itemId: string) => {
+    dispatch(cartActions.incrementItem(itemId));
+  };
+
+  const decrementItem = (itemId: string) => {
+    dispatch(cartActions.decrementItem(itemId));
   };
 
   const clearCart = () => {
@@ -33,8 +33,9 @@ export const useCart = () => {
     isLoading: cart.isLoading,
     itemCount: cart.items.reduce((sum, item) => sum + item.quantity, 0),
     addToCart,
-    updateQuantity,
     removeItem,
+    incrementItem,
+    decrementItem,
     clearCart,
   };
 };

@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { CartItem } from "@/types";
-import type { AddToCartPayload, UpdateCartPayload } from "@/apis/cart";
+import type { AddToCartPayload } from "@/apis/cart";
 
 export interface CartState {
   items: CartItem[];
@@ -55,8 +55,9 @@ export const cartSlice = createSlice({
     },
     fetchCart: () => {},
     addToCart: (_state, _action: PayloadAction<AddToCartPayload>) => {},
-    updateCart: (_state, _action: PayloadAction<UpdateCartPayload>) => {},
     removeFromCart: (_state, _action: PayloadAction<string>) => {},
+    incrementItem: (_state, _action: PayloadAction<string>) => {},
+    decrementItem: (_state, _action: PayloadAction<string>) => {},
   },
 });
 

@@ -7,7 +7,14 @@ import { ROUTES } from "@/routes/constants";
 
 const CartPage: React.FC = () => {
   const navigate = useNavigate();
-  const { items, subtotal, itemCount, updateQuantity, removeItem } = useCart();
+  const {
+    items,
+    subtotal,
+    itemCount,
+    incrementItem,
+    decrementItem,
+    removeItem,
+  } = useCart();
 
   if (items.length === 0) {
     return (
@@ -67,7 +74,8 @@ const CartPage: React.FC = () => {
                   <CartItemCard
                     key={item.productId}
                     item={item}
-                    onUpdateQuantity={updateQuantity}
+                    onIncrement={incrementItem}
+                    onDecrement={decrementItem}
                     onRemove={removeItem}
                   />
                 ))}

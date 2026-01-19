@@ -6,11 +6,6 @@ export interface AddToCartPayload {
   quantity: number;
 }
 
-export interface UpdateCartPayload {
-  itemId: string;
-  quantity: number;
-}
-
 export interface CartResponse {
   items: CartItem[];
   subtotal: number;
@@ -130,36 +125,6 @@ export const addToCart = async (
   return true;
 };
 
-export const updateCartItem = async (
-  payload: UpdateCartPayload,
-): Promise<boolean> => {
-  // Backend uses productId for removal/updates, itemId is the productId
-  const url = `${API_BASE_URL}/cart/${CUSTOMER_ID}/items`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      productId: payload.itemId, // itemId is actually the productId
-      quantity: payload.quantity,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to update cart: ${response.statusText}`);
-  }
-
-  const result = await response.json();
-
-  if (!result.success) {
-    throw new Error("Failed to update cart");
-  }
-
-  return true;
-};
-
 export const removeFromCart = async (itemId: string): Promise<boolean> => {
   // itemId is the productId
   const url = `${API_BASE_URL}/cart/${CUSTOMER_ID}/items/${itemId}`;
@@ -176,6 +141,46 @@ export const removeFromCart = async (itemId: string): Promise<boolean> => {
 
   if (!result.success) {
     throw new Error("Failed to remove from cart");
+  }
+
+  return true;
+};
+
+export const incrementCartItem = async (itemId: string): Promise<boolean> => {
+  const url = `${API_BASE_URL}/cart/${CUSTOMER_ID}/items/${itemId}/increment`;
+
+  const response = await fetch(url, {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to increment item: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error("Failed to increment item");
+  }
+
+  return true;
+};
+
+export const decrementCartItem = async (itemId: string): Promise<boolean> => {
+  const url = `${API_BASE_URL}/cart/${CUSTOMER_ID}/items/${itemId}/decrement`;
+
+  const response = await fetch(url, {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to decrement item: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error("Failed to decrement item");
   }
 
   return true;

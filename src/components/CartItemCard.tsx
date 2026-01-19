@@ -4,23 +4,25 @@ import QuantityControl from "@/components/QuantityControl";
 
 interface CartItemCardProps {
   item: CartItem;
-  onUpdateQuantity: (itemId: string, quantity: number) => void;
+  onIncrement: (itemId: string) => void;
+  onDecrement: (itemId: string) => void;
   onRemove: (itemId: string) => void;
   compact?: boolean;
 }
 
 const CartItemCard: React.FC<CartItemCardProps> = ({
   item,
-  onUpdateQuantity,
+  onIncrement,
+  onDecrement,
   onRemove,
   compact = false,
 }) => {
   const handleDecrease = () => {
-    onUpdateQuantity(item.productId, item.quantity - 1);
+    onDecrement(item.productId);
   };
 
   const handleIncrease = () => {
-    onUpdateQuantity(item.productId, item.quantity + 1);
+    onIncrement(item.productId);
   };
 
   const handleRemove = () => {
