@@ -5,3 +5,4 @@ export { default as Pagination } from "./Pagination";
 export { default as QuantityControl } from "./QuantityControl";
 export { default as CartItemCard } from "./CartItemCard";
 export { default as CartSidebar } from "./CartSidebar";
+export { default as GlobalLoader } from "./GlobalLoader";

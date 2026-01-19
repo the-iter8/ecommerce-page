@@ -1,11 +1,13 @@
 import { call, put, takeLatest } from "redux-saga/effects";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { cartActions } from ".";
+import { globalActions } from "@/store/global";
 import type { AddToCartPayload, UpdateCartPayload } from "@/apis/cart";
 import * as cartAPI from "@/apis/cart";
 
 export function* OnFetchCart() {
   try {
+    yield put(globalActions.startLoading());
     yield put(cartActions.setIsLoading(true));
 
     const response: cartAPI.CartResponse = yield call(cartAPI.getCart);
@@ -22,11 +24,13 @@ export function* OnFetchCart() {
     console.error("Failed to fetch cart:", error);
   } finally {
     yield put(cartActions.setIsLoading(false));
+    yield put(globalActions.stopLoading());
   }
 }
 
 export function* OnAddToCart(action: PayloadAction<AddToCartPayload>) {
   try {
+    yield put(globalActions.startLoading());
     yield put(cartActions.setIsLoading(true));
 
     const success: boolean = yield call(cartAPI.addToCart, action.payload);
@@ -38,11 +42,13 @@ export function* OnAddToCart(action: PayloadAction<AddToCartPayload>) {
     console.error("Failed to add to cart:", error);
   } finally {
     yield put(cartActions.setIsLoading(false));
+    yield put(globalActions.stopLoading());
   }
 }
 
 export function* OnUpdateCart(action: PayloadAction<UpdateCartPayload>) {
   try {
+    yield put(globalActions.startLoading());
     yield put(cartActions.setIsLoading(true));
 
     const success: boolean = yield call(cartAPI.updateCartItem, action.payload);
@@ -54,11 +60,13 @@ export function* OnUpdateCart(action: PayloadAction<UpdateCartPayload>) {
     console.error("Failed to update cart:", error);
   } finally {
     yield put(cartActions.setIsLoading(false));
+    yield put(globalActions.stopLoading());
   }
 }
 
 export function* OnRemoveFromCart(action: PayloadAction<string>) {
   try {
+    yield put(globalActions.startLoading());
     yield put(cartActions.setIsLoading(true));
 
     const success: boolean = yield call(cartAPI.removeFromCart, action.payload);
@@ -70,6 +78,7 @@ export function* OnRemoveFromCart(action: PayloadAction<string>) {
     console.error("Failed to remove from cart:", error);
   } finally {
     yield put(cartActions.setIsLoading(false));
+    yield put(globalActions.stopLoading());
   }
 }
 

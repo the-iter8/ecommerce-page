@@ -30,7 +30,7 @@ export const httpHandler = async (
   body?: unknown,
 ): Promise<ApiResponse> => {
   try {
-    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
     const fullUrl = `${baseUrl}${url}`;
 
     const config: RequestInit = {

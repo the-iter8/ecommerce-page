@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { useAppDispatch } from "@/hooks/redux";
 import { cartActions } from "@/store/cart";
+import { GlobalLoader } from "@/components";
 import Router from "./routes/Router";
 
 const App: React.FC = () => {
@@ -12,9 +13,12 @@ const App: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <BrowserRouter>
-      <Router />
-    </BrowserRouter>
+    <>
+      <GlobalLoader />
+      <BrowserRouter>
+        <Router />
+      </BrowserRouter>
+    </>
   );
 };
 

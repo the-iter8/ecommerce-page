@@ -4,11 +4,13 @@ import rootSaga from "./saga";
 import productsReducer from "./products";
 import cartReducer from "./cart";
 import adminReducer from "./admin";
+import globalReducer from "./global";
 
 const sagaMiddleware = createSagaMiddleware();
 
 export const store = configureStore({
   reducer: {
+    global: globalReducer,
     products: productsReducer,
     cart: cartReducer,
     admin: adminReducer,

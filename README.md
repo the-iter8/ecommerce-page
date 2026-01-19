@@ -1,157 +1,237 @@
 # E-Commerce App
 
-Modern e-commerce platform built with React, TypeScript, Redux Saga, and Tailwind CSS.
+Modern full-stack e-commerce platform with advanced filtering, cart management, checkout flow, and admin capabilities.
 
-## Stack
+## Overview
 
-- **React 19** + **TypeScript** + **Vite**
-- **Redux Toolkit** + **Redux Saga** (async)
-- **React Router v7** (routing)
-- **Tailwind CSS v4** (styling)
-- **Axios** (HTTP)
-- **i18next** (i18n)
+Production-ready e-commerce application demonstrating modern React patterns, state management with Redux Saga, and clean architecture principles. Features server-side product filtering, real-time cart updates, multi-step checkout, payment processing, and admin order management.
+
+## Tech Stack
+
+- **Frontend:** React 19 + TypeScript + Vite
+- **State Management:** Redux Toolkit + Redux Saga
+- **Routing:** React Router v7
+- **Styling:** Tailwind CSS v4
+- **HTTP Client:** Axios
+- **Internationalization:** i18next
+- **Package Manager:** pnpm
 
 ## Quick Start
 
-```bash
-pnpm install
-pnpm dev      # http://localhost:5173
-pnpm build    # production build
-pnpm preview  # preview build
-```
+Install dependencies with `pnpm install`, then run `pnpm dev` for development server at localhost:5173. Build production with `pnpm build`.
 
-## Features
+## Application Routes
 
-- 🛍️ Product listing with filters (category, price, search)
-- 🛒 Cart management (add, remove, update quantity)
-- 💳 Checkout flow with payment
-- 👤 Admin dashboard
-- 📱 Responsive design
-- 🔄 Async state via Redux Saga
-- 🎯 Type-safe with TypeScript
+| Route              | Component      | Description                   |
+| ------------------ | -------------- | ----------------------------- |
+| `/`                | ProductsPage   | Product listing with filters  |
+| `/cart`            | CartPage       | Shopping cart view            |
+| `/checkout`        | CheckoutPage   | Multi-step checkout form      |
+| `/payment`         | PaymentPage    | Payment processing            |
+| `/payment/success` | PaymentSuccess | Order confirmation            |
+| `/admin`           | AdminDashboard | Order management (admin only) |
+
+All routes use lazy loading for optimal bundle splitting.
+
+## Core Features
+
+### Product Browsing
+
+- Category filtering
+- Price range filtering (min/max)
+- Search functionality
+- Sorting options (price low-high, featured)
+- Server-side pagination
+- Product detail view with specifications
+- Responsive grid layout
+
+### Cart Management
+
+- Add/remove items
+- Quantity control with stock validation
+- Discount code application
+- Cart sidebar accessible from any page
+- Cart state synchronized with backend
+- Auto-calculated subtotal, discount, and total
+
+### Checkout Flow
+
+- Multi-step form (shipping → payment)
+- Client-side validation
+- Order creation and backend processing
+- Order confirmation page
+
+### Admin Dashboard
+
+- View all orders with status filters
+- Expandable order details
+- Update order status
+- Search orders
+
+### Technical Features
+
+- Full TypeScript coverage
+- Error boundaries with user feedback
+- Loading states (skeleton screens, spinners)
+- Empty states with meaningful placeholders
+- Mobile-first responsive design
+- Route-based code splitting
+- Optimized production builds
 
 ## Architecture
 
-Feature-based structure with centralized async logic:
+### Data Flow Pattern
 
-```
-UI → Redux → Saga → API → Redux → UI
-```
+Unidirectional data flow: User Action → Redux Dispatch → Saga Intercepts → API Call → Redux Update → UI Re-render
+
+**Process:**
+
+1. User clicks "Add to Cart"
+2. Component dispatches action
+3. Saga intercepts and calls API
+4. API response updates Redux store
+5. Components re-render with new state
+
+### State Management Philosophy
+
+- **Redux Store:** Server data, shared state, authentication
+- **Component State:** Local UI state (forms, toggles)
+- **Derived State:** Computed values via useMemo
+- **Sagas Only:** All async operations in sagas (no thunks)
 
 ### Folder Structure
 
-```
-src/
-├── pages/           # Feature modules (products, cart, checkout, admin, payment)
-│   └── [feature]/
-│       ├── index.tsx
-│       ├── components/
-│       ├── views/
-│       └── hooks/
-├── store/           # Redux slices + sagas
-│   ├── [feature]/
-│   │   ├── index.ts    # slice
-│   │   └── saga.ts     # async logic
-│   └── store.ts
-├── apis/            # HTTP services
-├── components/      # Shared components
-├── routes/          # Router config
-├── hooks/           # Custom hooks
-├── types/           # Global types
-└── utils/           # Utilities
-```
+- **pages/** - Feature modules (products, cart, checkout, payment, admin)
+- **store/** - Redux state management with slices and sagas
+- **apis/** - HTTP services for backend communication
+- **components/** - Shared reusable components
+- **routes/** - Router configuration
+- **hooks/** - Custom hooks
+- **types/** - TypeScript definitions
+- **utils/** - Utility functions
+- **config/** - App configuration
 
-## Key Patterns
+### Module Pattern
 
-### Redux Slice
+Each feature follows consistent structure:
 
-```ts
-const slice = createSlice({
-  name: "feature",
-  initialState,
-  reducers: {
-    setItems: (state, action) => {
-      state.items = action.payload;
-    },
-    fetchItems: () => {}, // saga trigger
-  },
-});
-```
+- Main component (index.tsx)
+- Feature-specific components
+- Sub-pages (views/)
+- Custom hooks
+- Constants
 
-### Saga
+### Redux Patterns
 
-```ts
-function* OnFetchItems() {
-  try {
-    yield put(actions.setIsLoading(true));
-    const data = yield call(getItems);
-    yield put(actions.setItems(data));
-  } catch (err) {
-    // handle error
-  } finally {
-    yield put(actions.setIsLoading(false));
-  }
-}
-```
+**Slice:** Defines state shape and synchronous reducers  
+**Saga:** Handles async operations (API calls, side effects)  
+**API Layer:** Isolated HTTP calls, separated from business logic
 
-### API
+**Flow:** Component dispatches action → Saga watches → Saga calls API → API returns data → Saga updates store → Component receives updated state
 
-```ts
-export const getItems = async (): Promise<Item[]> => {
-  const response = await httpHandler(
-    "items",
-    RequestType.GET,
-    headerWithAuth(),
-  );
-  if (response.status === responseStatus.SUCCESS) return response.data;
-  throw new Error(response.message);
-};
-```
+### Module Isolation
 
-### Component
+Each feature is self-contained:
 
-```ts
-const Component: React.FC<Props> = ({ value }) => {
-  const dispatch = useAppDispatch();
-  const items = useAppSelector(s => s.feature.items);
+- No cross-feature imports (except shared components)
+- Independent deletion (remove folder = remove feature)
+- Predictable structure (same pattern everywhere)
 
-  useEffect(() => {
-    dispatch(actions.fetchItems());
-  }, []);
+## API Integration
 
-  return <div className="flex gap-4 p-4">{/* ... */}</div>;
-};
-```
+### Environment Setup
 
-## Styling
+Set backend URL in `.env` file using `VITE_API_BASE_URL` variable.
 
-Tailwind inline classes for all UI. Use `classnames` for conditionals.
+### Backend Endpoints
 
-```tsx
-<div className={classNames("p-4 rounded", isActive && "bg-blue-500")} />
-```
+| Method | Endpoint            | Purpose                    |
+| ------ | ------------------- | -------------------------- |
+| GET    | `/products`         | List products with filters |
+| GET    | `/products/:id`     | Product details            |
+| GET    | `/cart`             | Get cart items             |
+| POST   | `/cart`             | Add to cart                |
+| PUT    | `/cart/:id`         | Update quantity            |
+| DELETE | `/cart/:id`         | Remove from cart           |
+| POST   | `/orders`           | Create order               |
+| GET    | `/admin/orders`     | List orders (admin)        |
+| PUT    | `/admin/orders/:id` | Update order status        |
 
-## Rules
+### Product Filters
 
-✅ Feature-based modules  
-✅ Redux for server state  
-✅ Saga for async  
-✅ Tailwind for layout  
-✅ Typed props/APIs  
-✅ Error boundaries  
-✅ Loading states
+Query parameters for products endpoint:
 
-❌ No API in components  
-❌ No thunks  
-❌ No class components  
-❌ No inline styles  
-❌ No SCSS
+- **category** - Filter by category
+- **minPrice** - Minimum price
+- **maxPrice** - Maximum price
+- **sortBy** - Sort order (price-low, price-high, featured)
+- **page** - Page number (1-indexed)
+- **limit** - Items per page
 
-## Scripts
+## Type System
 
-```bash
-pnpm dev      # dev server
-pnpm build    # production build
-pnpm preview  # preview build
-pnpm lint     # ESLint
-```
+### Core Interfaces
+
+**Product:** ID, name, description, price, category, image URL, stock quantity, optional featured flag
+
+**CartItem:** ID, product reference, quantity, price
+
+**Order:** ID, items array, total amount, status (pending/processing/shipped/delivered), shipping address, creation timestamp
+
+## Development Guidelines
+
+### Best Practices ✅
+
+- Feature-based folder structure
+- Redux for server/shared state
+- Sagas for async operations
+- Tailwind for all styling
+- Explicit TypeScript types
+- Error boundaries on pages
+- Loading and empty states
+- Typed Redux hooks
+
+### Avoid ❌
+
+- API calls in components
+- Redux thunks
+- Class components
+- Inline styles
+- SCSS/CSS modules
+- Magic strings
+- Ignored TypeScript errors
+
+## Styling Approach
+
+- Tailwind utility classes only
+- classnames library for conditional styling
+- Mobile-first responsive design
+- No custom CSS/SCSS files
+
+## Performance Optimizations
+
+- Route-based lazy loading
+- Bundle splitting and tree-shaking
+- Image lazy loading
+- Redux state caching
+- Input debouncing (search/filters)
+- Memoized computations
+
+## Browser Support
+
+Modern browsers (Chrome, Firefox, Safari, Edge) and mobile browsers (iOS Safari, Chrome Android)
+
+## Project Philosophy
+
+Feature-based architecture ensures self-contained modules, easy feature addition/removal, clear code organization, reduced coupling, and team scalability.
+
+## Available Scripts
+
+- **pnpm dev** - Development server (localhost:5173)
+- **pnpm build** - Production build
+- **pnpm preview** - Preview production build
+- **pnpm lint** - Run ESLint
+
+## License
+
+MIT

@@ -1,5 +1,6 @@
 import React from "react";
 import classNames from "classnames";
+import { useAppSelector } from "@/hooks/redux";
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -22,7 +23,11 @@ const Button: React.FC<ButtonProps> = ({
   type = "button",
   className,
 }) => {
-  const baseClasses = "font-medium transition-colors rounded-full";
+  const isGlobalLoading = useAppSelector((state) => state.global.isLoading);
+  const isDisabled = disabled || isGlobalLoading;
+
+  const baseClasses =
+    "font-medium transition-colors rounded-full cursor-pointer";
 
   const variantClasses = {
     primary: "bg-blue-600 hover:bg-blue-700 text-white",
@@ -43,10 +48,10 @@ const Button: React.FC<ButtonProps> = ({
     <button
       type={type}
       onClick={onClick}
-      disabled={disabled}
+      disabled={isDisabled}
       className={classNames(
         baseClasses,
-        disabled ? disabledClasses : variantClasses[variant],
+        isDisabled ? disabledClasses : variantClasses[variant],
         sizeClasses[size],
         fullWidth && "w-full",
         className,
