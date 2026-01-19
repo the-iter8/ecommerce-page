@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { cartActions } from "@/store/cart";
 import { productsActions } from "@/store/products";
 import Select from "@/components/Select";
+import CartSidebar from "@/components/CartSidebar";
 import ResultsHeader from "./components/ResultsHeader";
 import FilterSidebar from "./components/FilterSidebar";
 import ProductList from "./components/ProductList";
@@ -100,6 +101,13 @@ const ProductsPage: React.FC = () => {
             onAddToCart={handleAddToCart}
             onPageChange={handlePageChange}
           />
+
+          {/* Cart Sidebar */}
+          <div className="w-80 shrink-0">
+            <div className="sticky top-4">
+              <CartSidebar />
+            </div>
+          </div>
         </div>
       </div>
     </div>

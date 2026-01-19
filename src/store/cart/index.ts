@@ -28,28 +28,6 @@ export const cartSlice = createSlice({
     setCartItems: (state, action: PayloadAction<CartItem[]>) => {
       state.items = action.payload;
     },
-    addCartItem: (state, action: PayloadAction<CartItem>) => {
-      const existingIndex = state.items.findIndex(
-        (item) => item.productId === action.payload.productId,
-      );
-      if (existingIndex >= 0) {
-        state.items[existingIndex] = action.payload;
-      } else {
-        state.items.push(action.payload);
-      }
-    },
-    updateCartItemQuantity: (
-      state,
-      action: PayloadAction<{ itemId: string; quantity: number }>,
-    ) => {
-      const item = state.items.find((i) => i.id === action.payload.itemId);
-      if (item) {
-        item.quantity = action.payload.quantity;
-      }
-    },
-    removeCartItem: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter((item) => item.id !== action.payload);
-    },
     setCartTotals: (
       state,
       action: PayloadAction<{
