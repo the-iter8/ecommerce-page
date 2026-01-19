@@ -9,10 +9,13 @@ export interface Product {
 }
 
 export interface CartItem {
-  id: string;
   productId: string;
   quantity: number;
-  product: Product;
+  priceSnapshot: number;
+  productName: string;
+  productDescription: string;
+  productImage: string;
+  productCategory: string;
 }
 
 export interface DiscountCode {
@@ -24,12 +27,26 @@ export interface DiscountCode {
 
 export interface Order {
   id: string;
+  orderNumber: number;
+  customerId: string;
   items: CartItem[];
   subtotal: number;
-  discount: number;
-  total: number;
-  discountCode: string | null;
-  createdAt: string;
+  discountAmount: number;
+  totalAmount: number;
+  discountCode?: string;
+  createdAt: number;
+}
+
+export interface AdminConfig {
+  nthOrderValue: number;
+  totalOrderCount: number;
+  discountPercent: number;
+  canGenerateDiscount: boolean;
+}
+
+export interface GeneratedDiscountCode {
+  code: string;
+  discountPercent: number;
 }
 
 export interface AdminStats {

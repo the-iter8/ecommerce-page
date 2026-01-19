@@ -1,6 +1,5 @@
-import type { CartItem, Product } from "@/types";
+import type { CartItem } from "@/types";
 import { API_BASE_URL } from "@/config/api";
-import { getProductById as fetchProductById } from "./products";
 
 export interface AddToCartPayload {
   productId: string;
@@ -26,6 +25,10 @@ interface BackendCartItem {
   productId: string;
   quantity: number;
   priceSnapshot: number;
+  productName: string;
+  productDescription: string;
+  productImage: string;
+  productCategory: string;
 }
 
 interface BackendCartResponse {
@@ -43,26 +46,16 @@ interface BackendCartResponse {
 }
 
 // Helper to transform backend cart to frontend format
-const transformCartResponse = async (
-  backendItems: BackendCartItem[],
-): Promise<CartItem[]> => {
-  const cartItems: CartItem[] = [];
-
-  for (const item of backendItems) {
-    try {
-      const product: Product = await fetchProductById(item.productId);
-      cartItems.push({
-        id: item.productId, // Using productId as cart item id
-        productId: item.productId,
-        quantity: item.quantity,
-        product,
-      });
-    } catch (error) {
-      console.error(`Failed to fetch product ${item.productId}:`, error);
-    }
-  }
-
-  return cartItems;
+const transformCartResponse = (backendItems: BackendCartItem[]): CartItem[] => {
+  return backendItems.map((item) => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    priceSnapshot: item.priceSnapshot,
+    productName: item.productName,
+    productDescription: item.productDescription,
+    productImage: item.productImage,
+    productCategory: item.productCategory,
+  }));
 };
 
 export const getCart = async (): Promise<CartResponse> => {
@@ -91,7 +84,7 @@ export const getCart = async (): Promise<CartResponse> => {
       throw new Error("Failed to fetch cart");
     }
 
-    const items = await transformCartResponse(result.data.cart.items);
+    const items = transformCartResponse(result.data.cart.items);
     const subtotal = result.data.cart.totalAmount;
     const discount = 0;
     const total = subtotal - discount;

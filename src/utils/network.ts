@@ -18,7 +18,51 @@ export type responseStatus =
 
 export interface ApiResponse {
   status: responseStatus;
-  data?: any;
+  data?: unknown;
   message?: string;
   statusCode?: number;
 }
+
+export const httpHandler = async (
+  url: string,
+  method: RequestType,
+  headers?: Record<string, string>,
+  body?: unknown,
+): Promise<ApiResponse> => {
+  try {
+    const config: RequestInit = {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+    };
+
+    if (body && method !== RequestType.GET) {
+      config.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(url, config);
+    const data = await response.json();
+
+    if (data.success) {
+      return {
+        status: responseStatus.SUCCESS,
+        data: data.data,
+        statusCode: data.statusCode || response.status,
+      };
+    } else {
+      return {
+        status: responseStatus.ERROR,
+        message: data.error?.message || data.message || "Request failed",
+        statusCode: data.statusCode || response.status,
+      };
+    }
+  } catch (error: unknown) {
+    return {
+      status: responseStatus.ERROR,
+      message: error instanceof Error ? error.message : "Network error",
+      statusCode: 500,
+    };
+  }
+};

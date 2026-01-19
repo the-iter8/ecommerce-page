@@ -16,34 +16,34 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
   compact = false,
 }) => {
   const handleDecrease = () => {
-    onUpdateQuantity(item.id, item.quantity - 1);
+    onUpdateQuantity(item.productId, item.quantity - 1);
   };
 
   const handleIncrease = () => {
-    onUpdateQuantity(item.id, item.quantity + 1);
+    onUpdateQuantity(item.productId, item.quantity + 1);
   };
 
   const handleRemove = () => {
-    onRemove(item.id);
+    onRemove(item.productId);
   };
 
   if (compact) {
     return (
       <div className="flex gap-3 py-2">
-        <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded">
+        <div className="shrink-0 w-16 h-16 bg-gray-100 rounded">
           <img
-            src={item.product.image}
-            alt={item.product.name}
+            src={item.productImage}
+            alt={item.productName}
             className="w-full h-full object-cover rounded"
           />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-medium text-gray-900 truncate">
-            {item.product.name}
+            {item.productName}
           </h3>
           <div className="flex items-center justify-between mt-2">
             <span className="text-sm font-medium text-gray-900">
-              ₹{(item.product.price * item.quantity).toLocaleString()}
+              ₹{(item.priceSnapshot * item.quantity).toLocaleString()}
             </span>
           </div>
           <div className="mt-2">
@@ -61,17 +61,17 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
 
   return (
     <div className="flex gap-5 py-5">
-      <div className="flex-shrink-0 w-44 h-44 bg-gray-100 rounded">
+      <div className="shrink-0 w-44 h-44 bg-gray-100 rounded">
         <img
-          src={item.product.image}
-          alt={item.product.name}
+          src={item.productImage}
+          alt={item.productName}
           className="w-full h-full object-cover rounded"
         />
       </div>
 
       <div className="flex-1 min-w-0">
         <h3 className="text-lg font-medium text-gray-900 hover:text-orange-700 cursor-pointer">
-          {item.product.name}
+          {item.productName}
         </h3>
         <p className="text-xs text-green-700 font-medium mt-1">In Stock</p>
         <p className="text-xs text-gray-600 mt-1">Eligible for FREE Delivery</p>
@@ -98,9 +98,9 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
         </div>
       </div>
 
-      <div className="flex-shrink-0 w-24 text-right">
+      <div className="shrink-0 w-24 text-right">
         <span className="text-xl font-bold text-gray-900">
-          ₹{item.product.price.toLocaleString()}
+          ₹{item.priceSnapshot.toLocaleString()}
         </span>
       </div>
     </div>

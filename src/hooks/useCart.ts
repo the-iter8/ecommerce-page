@@ -1,14 +1,9 @@
-import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { cartActions } from "@/store/cart";
 
 export const useCart = () => {
   const dispatch = useAppDispatch();
   const cart = useAppSelector((s) => s.cart);
-
-  useEffect(() => {
-    dispatch(cartActions.fetchCart());
-  }, [dispatch]);
 
   const addToCart = (productId: string, quantity: number = 1) => {
     dispatch(cartActions.addToCart({ productId, quantity }));

@@ -68,7 +68,7 @@ const CartSidebar: React.FC = () => {
       <div className="max-h-96 overflow-y-auto">
         {items.map((item) => (
           <CartItemCard
-            key={item.id}
+            key={item.productId}
             item={item}
             onUpdateQuantity={updateQuantity}
             onRemove={removeItem}
